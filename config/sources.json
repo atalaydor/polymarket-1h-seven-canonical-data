@@ -30,7 +30,7 @@
       "class": "AUTHORITY_BINDING",
       "role": "exact ASSET_USDT one_hour_candle named by each official market",
       "license": "not_redistributed",
-      "url": "https://www.binance.com/en/trade/BTC_USDT",
+      "url": "https://www.binance.com/en/trade/BTC_USDT (spot assets); https://www.binance.com/en/futures/HYPEUSDT (HYPE)",
       "accessed_at": "2026-08-24",
       "reuse": "none; the exact asset-specific URL and candle semantics are bound from every fresh Gamma rules payload"
     },

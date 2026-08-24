@@ -40,7 +40,11 @@ CONDITION = "0x" + "a" * 64
 def gamma_payload(asset: Asset = Asset.DOGE, outcome_prices: list[str] | None = None) -> bytes:
     symbol = asset.value
     display = "Hyperliquid" if asset is Asset.HYPE else asset.value
-    source = f"https://www.binance.com/en/trade/{symbol}_USDT"
+    source = (
+        "https://www.binance.com/en/futures/HYPEUSDT"
+        if asset is Asset.HYPE
+        else f"https://www.binance.com/en/trade/{symbol}_USDT"
+    )
     event = {
         "id": "event-1",
         "markets": [
@@ -78,7 +82,11 @@ def market(asset: Asset = Asset.DOGE, tier: QualityTier = QualityTier.TIER_A) ->
         market_start_ns=START_NS,
         market_end_ns=START_NS + 3_600_000_000_000,
         rules_text_sha256="b" * 64,
-        resolution_source_url=f"https://www.binance.com/en/trade/{asset.value}_USDT",
+        resolution_source_url=(
+            "https://www.binance.com/en/futures/HYPEUSDT"
+            if asset is Asset.HYPE
+            else f"https://www.binance.com/en/trade/{asset.value}_USDT"
+        ),
         official_outcome=Outcome.UP,
         official_resolution_ts_ns=START_NS + 301_000_000_000,
         quality_tier=tier,

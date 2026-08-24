@@ -6,7 +6,7 @@ Evidence was reproduced on 2026-08-24 and is rechecked by the remote canary.
 |---|---|
 | [Polymarket market-data documentation](https://docs.polymarket.com/market-data/overview) and [Gamma event API](https://docs.polymarket.com/api-reference/events/get-event-by-slug) | Exact event/market slug, series, one-hour end boundary, condition, Up/Down tokens, rules, Binance resolution URL, and official outcome. |
 | [PMXT v2 overview](https://archive.pmxt.dev/docs/v2-data-overview) and [catalog](https://archive.pmxt.dev/Polymarket/v2) | Credential-free hourly Polymarket market-channel order-book events, accepted only after exact official condition/token filtering. |
-| Official market rules linking `https://www.binance.com/en/trade/ASSET_USDT` | Settlement semantics: Up iff the finalized ASSET/USDT one-hour candle close is greater than or equal to its open; otherwise Down. No terminal order-book or cross-venue inference substitutes for the official outcome. |
+| Official market rules linking Binance spot `https://www.binance.com/en/trade/ASSET_USDT` for BTC/ETH/SOL/XRP/DOGE/BNB and `https://www.binance.com/en/futures/HYPEUSDT` for HYPE | Settlement semantics: Up iff the finalized named ASSET/USDT one-hour candle close is greater than or equal to its open; otherwise Down. No terminal order-book or cross-venue inference substitutes for the official outcome. |
 
 Hourly slugs are canonical Eastern-Time identities such as
 `bitcoin-up-or-down-april-13-2026-4pm-et`, with corresponding full-name prefixes for Ethereum,

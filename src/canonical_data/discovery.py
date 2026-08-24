@@ -23,9 +23,10 @@ SLUG = re.compile(
     r"([a-z]+)-([0-9]{1,2})-([0-9]{4})-([0-9]{1,2})(am|pm)-et$"
 )
 CONDITION = re.compile(r"^0x[0-9a-f]{64}$")
-BINANCE_TRADE = re.compile(
-    r"^https://www\.binance\.com/en/trade/(BTC|ETH|SOL|XRP|DOGE|BNB|HYPE)_USDT$"
+BINANCE_SPOT_TRADE = re.compile(
+    r"^https://www\.binance\.com/en/trade/(BTC|ETH|SOL|XRP|DOGE|BNB)_USDT$"
 )
+BINANCE_HYPE_FUTURES = "https://www.binance.com/en/futures/HYPEUSDT"
 EASTERN = ZoneInfo("America/New_York")
 SLUG_NAMES = {
     Asset.BTC: "bitcoin",
@@ -140,11 +141,13 @@ def _rules_bind_source(asset: Asset, rules: str, source_url: object) -> str:
         re.search(rf"(?<![a-z0-9]){re.escape(name)}(?![a-z0-9])", rules_lower)
         for name in ASSET_RULE_NAMES[asset]
     )
-    match = BINANCE_TRADE.fullmatch(declared)
+    match = BINANCE_SPOT_TRADE.fullmatch(declared)
     expected_pair = f"{asset.value.lower()}/usdt"
     if (
-        match is not None
-        and match.group(1) == asset.value
+        (
+            (match is not None and match.group(1) == asset.value)
+            or (asset is Asset.HYPE and declared == BINANCE_HYPE_FUTURES)
+        )
         and rules_asset_identity
         and expected_pair in rules_lower
         and "1 hour candle" in rules_lower

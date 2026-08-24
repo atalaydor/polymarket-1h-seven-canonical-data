@@ -1149,16 +1149,17 @@ def verify_remote_partition(
             if published_gamma != expected_gamma:
                 raise RuntimeError("remote canary Gamma provenance changed")
         for row in market_rows:
+            expected_resolution = (
+                "https://www.binance.com/en/futures/HYPEUSDT"
+                if expected_asset == "HYPE"
+                else f"https://www.binance.com/en/trade/{expected_asset}_USDT"
+            )
             if (
                 row["asset"] != expected_asset
                 or row["timeframe"] != "1h"
                 or row["market_end_ns"] - row["market_start_ns"] != 3_600_000_000_000
                 or row["official_outcome"] not in {"UP", "DOWN", "SPLIT"}
-                or not re.fullmatch(
-                    r"https://www\.binance\.com/en/trade/"
-                    rf"{expected_asset}_USDT",
-                    str(row["resolution_source_url"]),
-                )
+                or row["resolution_source_url"] != expected_resolution
             ):
                 raise RuntimeError("remote market lacks frozen 1h settlement semantics")
     return {
