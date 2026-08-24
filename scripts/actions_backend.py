@@ -368,7 +368,9 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
                         raise RuntimeError("Gamma series inventory has divergent time identity")
                     prior = found.get(start)
                     if prior is not None:
-                        if prior != market:
+                        if _market_authority_projection(prior) != _market_authority_projection(
+                            market
+                        ):
                             raise RuntimeError("Gamma series inventory has divergent identity")
                         continue
                     if (
