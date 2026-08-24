@@ -272,37 +272,58 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             raise RuntimeError(f"Gamma hourly series id is invalid for {asset.value}")
         expected_slugs = {hourly_slug(asset, start): start for start in expected_starts}
         found: dict[int, Market] = {}
-        offset = 0
-        while offset < 10_000:
-            query = urllib.parse.urlencode(
-                {"series_id": series_id, "closed": "true", "limit": 500, "offset": offset}
-            )
-            payload = _fetch_gamma(f"https://gamma-api.polymarket.com/events?{query}", 50_000_000)
-            events = json.loads(payload)
-            if not isinstance(events, list):
-                raise RuntimeError("Gamma series inventory is not a list")
-            for event in events:
-                if not isinstance(event, dict):
-                    raise RuntimeError("Gamma series inventory contains a non-object")
-                markets = event.get("markets")
-                raw = markets[0] if isinstance(markets, list) and len(markets) == 1 else None
-                slug = raw.get("slug") if isinstance(raw, dict) else None
-                if slug not in expected_slugs:
-                    continue
-                market = bind_gamma_market(event, canonical_json_bytes(event))
-                start = expected_slugs[cast(str, slug)]
-                if market.market_start_ns != start * 1_000_000_000 or start in found:
-                    raise RuntimeError("Gamma series inventory has duplicate/divergent identity")
-                if market.market_id in seen_market_ids or market.condition_id in seen_conditions:
-                    raise RuntimeError("Gamma series inventory reuses a market identity")
-                found[start] = market
-                seen_market_ids.add(market.market_id)
-                seen_conditions.add(market.condition_id)
-            if not events:
-                break
-            offset += len(events)
-        else:
-            raise RuntimeError("Gamma series inventory exceeded bounded pagination")
+        window_start = authority.start
+        while window_start < authority.cutoff:
+            window_end = min(window_start + timedelta(days=14), authority.cutoff)
+            offset = 0
+            while offset < 1_000:
+                query = urllib.parse.urlencode(
+                    {
+                        "series_id": series_id,
+                        "closed": "true",
+                        "end_date_min": window_start.isoformat().replace("+00:00", "Z"),
+                        "end_date_max": window_end.isoformat().replace("+00:00", "Z"),
+                        "limit": 500,
+                        "offset": offset,
+                    }
+                )
+                payload = _fetch_gamma(
+                    f"https://gamma-api.polymarket.com/events?{query}", 50_000_000
+                )
+                events = json.loads(payload)
+                if not isinstance(events, list):
+                    raise RuntimeError("Gamma series inventory is not a list")
+                for event in events:
+                    if not isinstance(event, dict):
+                        raise RuntimeError("Gamma series inventory contains a non-object")
+                    markets = event.get("markets")
+                    raw = markets[0] if isinstance(markets, list) and len(markets) == 1 else None
+                    slug = raw.get("slug") if isinstance(raw, dict) else None
+                    if slug not in expected_slugs:
+                        continue
+                    market = bind_gamma_market(event, canonical_json_bytes(event))
+                    start = expected_slugs[cast(str, slug)]
+                    if market.market_start_ns != start * 1_000_000_000:
+                        raise RuntimeError("Gamma series inventory has divergent time identity")
+                    prior = found.get(start)
+                    if prior is not None:
+                        if prior != market:
+                            raise RuntimeError("Gamma series inventory has divergent identity")
+                        continue
+                    if (
+                        market.market_id in seen_market_ids
+                        or market.condition_id in seen_conditions
+                    ):
+                        raise RuntimeError("Gamma series inventory reuses a market identity")
+                    found[start] = market
+                    seen_market_ids.add(market.market_id)
+                    seen_conditions.add(market.condition_id)
+                if not events:
+                    break
+                offset += len(events)
+            else:
+                raise RuntimeError("Gamma series inventory exceeded bounded window pagination")
+            window_start = window_end
         if set(found) != set(expected_starts):
             missing_starts = sorted(set(expected_starts) - set(found))[:10]
             raise RuntimeError(
