@@ -272,6 +272,7 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             raise RuntimeError(f"Gamma hourly series id is invalid for {asset.value}")
         expected_slugs = {hourly_slug(asset, start): start for start in expected_starts}
         found: dict[int, Market] = {}
+        excluded: dict[int, UnresolvedMarketError] = {}
         window_start = authority.start
         while window_start < authority.cutoff:
             window_end = min(window_start + timedelta(days=14), authority.cutoff)
@@ -330,6 +331,15 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
         for start in sorted(set(expected_starts) - set(found)):
             try:
                 market, _, _ = gamma.fetch_market(asset, start)
+            except UnresolvedMarketError as exc:
+                if exc.slug != hourly_slug(asset, start):
+                    raise RuntimeError("Gamma unresolved slug has divergent identity") from exc
+                if exc.market_id in seen_market_ids or exc.condition_id in seen_conditions:
+                    raise RuntimeError("Gamma unresolved market reuses an identity") from exc
+                excluded[start] = exc
+                seen_market_ids.add(exc.market_id)
+                seen_conditions.add(exc.condition_id)
+                continue
             except urllib.error.HTTPError as exc:
                 if exc.code == 404:
                     continue
@@ -341,15 +351,18 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             found[start] = market
             seen_market_ids.add(market.market_id)
             seen_conditions.add(market.condition_id)
-        if set(found) != set(expected_starts):
-            missing_starts = sorted(set(expected_starts) - set(found))[:10]
+        dispositions = set(found) | set(excluded)
+        if dispositions != set(expected_starts):
+            missing_starts = sorted(set(expected_starts) - dispositions)[:10]
             raise RuntimeError(
                 f"{asset.value} cannot support the exact intended 1h interval; "
                 f"missing={missing_starts}"
             )
         inventories[asset.value] = {
             "series_id": series_id,
-            "markets": len(found),
+            "markets": len(dispositions),
+            "tier_a_markets": len(found),
+            "excluded_unresolved_markets": len(excluded),
             "first_start": expected_starts[0],
             "last_start": expected_starts[-1],
         }
