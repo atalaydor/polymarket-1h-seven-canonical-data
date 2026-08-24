@@ -302,8 +302,35 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
                     slug = raw.get("slug") if isinstance(raw, dict) else None
                     if slug not in expected_slugs:
                         continue
-                    market = bind_gamma_market(event, canonical_json_bytes(event))
                     start = expected_slugs[cast(str, slug)]
+                    try:
+                        market = bind_gamma_market(event, canonical_json_bytes(event))
+                    except UnresolvedMarketError as exc:
+                        if exc.slug != slug:
+                            raise RuntimeError(
+                                "Gamma unresolved series slug has divergent identity"
+                            ) from exc
+                        prior_exclusion = excluded.get(start)
+                        if prior_exclusion is not None:
+                            if (
+                                prior_exclusion.market_id != exc.market_id
+                                or prior_exclusion.condition_id != exc.condition_id
+                            ):
+                                raise RuntimeError(
+                                    "Gamma unresolved series has divergent identity"
+                                ) from exc
+                            continue
+                        if (
+                            exc.market_id in seen_market_ids
+                            or exc.condition_id in seen_conditions
+                        ):
+                            raise RuntimeError(
+                                "Gamma unresolved series reuses a market identity"
+                            ) from exc
+                        excluded[start] = exc
+                        seen_market_ids.add(exc.market_id)
+                        seen_conditions.add(exc.condition_id)
+                        continue
                     if market.market_start_ns != start * 1_000_000_000:
                         raise RuntimeError("Gamma series inventory has divergent time identity")
                     prior = found.get(start)
@@ -328,7 +355,7 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
         # Gamma series tags are an efficient inventory index but are not themselves
         # the slug authority. Reconcile any index omissions against the exact,
         # deterministic official slug endpoint before declaring an unsupported hour.
-        for start in sorted(set(expected_starts) - set(found)):
+        for start in sorted(set(expected_starts) - set(found) - set(excluded)):
             try:
                 market, _, _ = gamma.fetch_market(asset, start)
             except UnresolvedMarketError as exc:

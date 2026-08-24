@@ -202,7 +202,10 @@ def bind_gamma_market(event: dict[str, Any], retrieved_payload: bytes) -> Market
         raise IdentityError("official ids are missing")
     if raw.get("closed") is not True:
         raise UnresolvedMarketError(slug, market_id, condition_id)
-    outcome = _official_outcome(_json_list(raw.get("outcomePrices"), "outcomePrices"))
+    try:
+        outcome = _official_outcome(_json_list(raw.get("outcomePrices"), "outcomePrices"))
+    except IdentityError as exc:
+        raise UnresolvedMarketError(slug, market_id, condition_id) from exc
     evidence_digest = hashlib.sha256(retrieved_payload).hexdigest()
     rules_digest = hashlib.sha256(rules.encode()).hexdigest()
     return Market(
