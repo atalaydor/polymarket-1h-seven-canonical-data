@@ -3,8 +3,8 @@
 This public repository is the independent control plane and permanent GitHub authority for
 historical Polymarket 1-hour Up/Down markets for BTC, ETH, SOL, XRP, DOGE, BNB, and HYPE.
 
-The frozen source interval is 2026-04-13T20:00:00Z through the exclusive
-2026-08-10T01:00:00Z cutoff: 2,837 hourly market starts per asset and 840 asset/UTC-day
+The frozen source interval is 2026-04-18T20:00:00Z through the exclusive
+2026-08-10T01:00:00Z cutoff: 2,717 hourly market starts per asset and 805 asset/UTC-day
 partitions. The first PMXT object is causal warm-up only. Every official hourly identity is
 reproduced from its asset-specific Gamma series before production can unlock.
 

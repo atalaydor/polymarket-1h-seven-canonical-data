@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0
       - run: git pull --ff-only origin main
       - run: python -m pip install --disable-pip-version-check --no-cache-dir .
-      - name: Reconcile and certify all 840 durable partitions
+      - name: Reconcile and certify all 805 durable partitions
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python -m scripts.actions_backend certify
@@ -42,7 +42,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add config/backfill-ledger.json docs/final-certification.json
           git commit -m "Certify Polymarket 1h x 7 dataset"
-          git tag -a polymarket-1h-seven-v1-certified -m "Polymarket 1h x 7 complete - 840 durable partitions"
+          git tag -a polymarket-1h-seven-v1-certified -m "Polymarket 1h x 7 complete - 805 durable partitions"
           git push origin HEAD:main
           git push origin refs/tags/polymarket-1h-seven-v1-certified
 

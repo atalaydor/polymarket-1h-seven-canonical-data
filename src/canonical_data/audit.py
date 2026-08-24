@@ -65,7 +65,7 @@ def offline_audit(root: Path | None = None) -> dict[str, Any]:
     if production["dataset_id"] != "polymarket-1h-seven-v1":
         errors.append("production dataset identity changed")
     if (
-        production.get("coverage_start") != "2026-04-13T20:00:00Z"
+        production.get("coverage_start") != "2026-04-18T20:00:00Z"
         or production.get("release_cutoff") != "2026-08-10T01:00:00Z"
     ):
         errors.append("production coverage boundary changed")

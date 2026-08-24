@@ -13,5 +13,5 @@ then publishes through the short release lock.
 Interruption is safe at acquisition, fragment, bundle, file-upload, or partition boundaries. A
 relaunch derives unfinished authority from Releases rather than trusting a local ledger. Bounded
 retry applies only to transient transport failures. Semantic conflicts and resource breakers fail
-closed. Final certification is allowed only after all 840 planned partitions reconcile with no
+closed. Final certification is allowed only after all 805 planned partitions reconcile with no
 duplicate, divergent, partial, unexpected, or out-of-plan authority.

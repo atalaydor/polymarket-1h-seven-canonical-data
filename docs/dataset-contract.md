@@ -3,8 +3,8 @@
 Dataset identity is `polymarket-1h-seven-v1`. The universe is exactly BTC, ETH, SOL, XRP, DOGE,
 BNB, and HYPE; timeframe is exactly `1h`; partition identity is `asset/1h/UTC-date`.
 
-The frozen interval is `[2026-04-13T20:00:00Z, 2026-08-10T01:00:00Z)`. It contains 2,837 market
-starts per asset across 120 UTC dates and therefore 840 finite asset/day partitions. Partial boundary
+The frozen interval is `[2026-04-18T20:00:00Z, 2026-08-10T01:00:00Z)`. It contains 2,717 market
+starts per asset across 115 UTC dates and therefore 805 finite asset/day partitions. Partial boundary
 days are canonical partitions.
 
 Every partition publishes exactly six content-addressed assets: markets, native book events, 200 ms

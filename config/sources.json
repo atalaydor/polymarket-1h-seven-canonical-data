@@ -12,7 +12,7 @@
       "accessed_at": "2026-08-24",
       "object_coverage_start": "2026-04-13T19:00:00Z",
       "object_coverage_end": "2026-08-10T00:00:00Z",
-      "validation_coverage_start": "2026-04-13T20:00:00Z",
+      "validation_coverage_start": "2026-04-18T20:00:00Z",
       "validation_coverage_cutoff": "2026-08-10T01:00:00Z",
       "reuse": "fresh 1h repository evidence; the first raw hour is causal lookback only; no product-specific evidence is imported"
     },

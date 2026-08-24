@@ -271,19 +271,19 @@ class InventoryAndAcquisitionTests(unittest.TestCase):
         coverage_start = PMXT_VALIDATION_COVERAGE_START
         cutoff = PMXT_OBJECT_COVERAGE_CUTOFF
         self.assertEqual(
-            len(expected_1h_market_starts(date(2026, 4, 13), coverage_start, cutoff)), 4
+            len(expected_1h_market_starts(date(2026, 4, 18), coverage_start, cutoff)), 4
         )
         self.assertEqual(
-            len(expected_1h_market_starts(date(2026, 4, 15), coverage_start, cutoff)), 24
+            len(expected_1h_market_starts(date(2026, 4, 19), coverage_start, cutoff)), 24
         )
 
     def test_finite_backfill_plan_is_ordered_and_bounded_by_half_month(self) -> None:
-        plan = build_backfill_plan(date(2026, 4, 13), date(2026, 8, 10))
-        self.assertEqual(len(plan), 840)
-        self.assertEqual(plan[0]["partition_id"], "BTC/1h/2026-04-13")
+        plan = build_backfill_plan(date(2026, 4, 18), date(2026, 8, 10))
+        self.assertEqual(len(plan), 805)
+        self.assertEqual(plan[0]["partition_id"], "BTC/1h/2026-04-18")
         self.assertEqual(plan[-1]["partition_id"], "HYPE/1h/2026-08-10")
         groups = {row["release_group"] for row in plan}
-        self.assertEqual(len(groups), 9)
+        self.assertEqual(len(groups), 8)
         self.assertLessEqual(
             max(sum(row["release_group"] == group for row in plan) for group in groups), 112
         )

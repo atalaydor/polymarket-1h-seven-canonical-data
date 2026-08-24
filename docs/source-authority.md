@@ -11,8 +11,8 @@ Evidence was reproduced on 2026-08-24 and is rechecked by the remote canary.
 Hourly slugs are canonical Eastern-Time identities such as
 `bitcoin-up-or-down-april-13-2026-4pm-et`, with corresponding full-name prefixes for Ethereum,
 Solana, XRP, Dogecoin, BNB, and HYPE. The canary derives each asset's Gamma series from a fresh
-slug response, paginates it, and requires all 2,837 expected UTC starts from
-2026-04-13T20:00:00Z through 2026-08-10T00:00:00Z. Missing, duplicate, divergent, unresolved, or
+slug response, paginates it, and requires all 2,717 expected UTC starts from
+2026-04-18T20:00:00Z through 2026-08-10T00:00:00Z. Missing, duplicate, divergent, unresolved, or
 non-hour-aligned identities abort the unlock.
 
 The PMXT catalog contains 2,835 objects from 2026-04-13T19 through 2026-08-10T00. The three absent

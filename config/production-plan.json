@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "dataset_id": "polymarket-1h-seven-v1",
   "status": "CANARY_REQUIRED",
-  "coverage_start": "2026-04-13T20:00:00Z",
+  "coverage_start": "2026-04-18T20:00:00Z",
   "release_cutoff": "2026-08-10T01:00:00Z",
   "partition": {
     "unit": "asset/timeframe/utc_date",

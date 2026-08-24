@@ -22,7 +22,7 @@
     "reproduction": "The canary paginates the public catalog, compares its exact key set with the finite hourly inventory, and records the concatenated catalog SHA-256."
   },
   "validation_coverage": {
-    "start": "2026-04-13T20:00:00Z",
+    "start": "2026-04-18T20:00:00Z",
     "cutoff": "2026-08-10T01:00:00Z",
     "lookback_hours": 1,
     "reason": "The 19:00 object is causal warm-up for the first 20:00 market; the last 00:00 object supports the final 00:00-01:00 market."

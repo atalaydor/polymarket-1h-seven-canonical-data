@@ -158,7 +158,7 @@ class ActionsBackendTests(unittest.TestCase):
             [asset.value for asset in authority.assets],
             ["BTC", "ETH", "SOL", "XRP", "DOGE", "BNB", "HYPE"],
         )
-        self.assertEqual(authority.start, datetime(2026, 4, 13, 20, tzinfo=UTC))
+        self.assertEqual(authority.start, datetime(2026, 4, 18, 20, tzinfo=UTC))
         self.assertEqual(authority.cutoff, datetime(2026, 8, 10, 1, tzinfo=UTC))
         self.assertEqual(authority.canary_search_start, datetime(2026, 8, 5, 23, tzinfo=UTC))
         candidates = _candidate_starts(authority)
@@ -171,7 +171,7 @@ class ActionsBackendTests(unittest.TestCase):
         ]
         self.assertEqual(len(all_candidates), CANARY_MAX_CANDIDATES_TOTAL)
         self.assertEqual(len(all_candidates), len(set(all_candidates)))
-        self.assertEqual(len(_full_plan(authority)), 840)
+        self.assertEqual(len(_full_plan(authority)), 805)
 
     def test_production_entrypoints_use_import_safe_module_execution(self) -> None:
         root = Path(__file__).resolve().parents[1]

@@ -10,7 +10,7 @@ from canonical_data.models import Asset
 
 PMXT_OBJECT_COVERAGE_START = datetime(2026, 4, 13, 19, tzinfo=UTC)
 PMXT_OBJECT_COVERAGE_CUTOFF = datetime(2026, 8, 10, 1, tzinfo=UTC)
-PMXT_VALIDATION_COVERAGE_START = datetime(2026, 4, 13, 20, tzinfo=UTC)
+PMXT_VALIDATION_COVERAGE_START = datetime(2026, 4, 18, 20, tzinfo=UTC)
 PMXT_MISSING_OBJECT_URLS = frozenset(
     f"https://r2v2.pmxt.dev/polymarket_orderbook_2026-06-11T{hour}.parquet"
     for hour in ("04", "05", "06")
