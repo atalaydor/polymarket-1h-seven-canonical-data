@@ -35,7 +35,8 @@
     "unknown": "EXCLUDED with evidence"
   },
   "canary": {
-    "scope": "find one common resolved 1h window for all seven assets and prove source, isolated compute, authenticated staging, deterministic assembly, publication, redownload, and no-op reconciliation",
+    "scope": "find the deterministic minimum cover of resolved reconstructable 1h windows for all seven assets and prove source, isolated compute, authenticated staging, deterministic assembly, publication, redownload, and no-op reconciliation",
+    "compute_candidates_per_round": 6,
     "search": {
       "rounds": [
         {"start": "2026-08-05T23:00:00Z", "end": "2026-08-05T00:00:00Z", "step_minutes": 60},

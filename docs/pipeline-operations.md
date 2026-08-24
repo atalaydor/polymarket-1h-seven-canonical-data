@@ -1,9 +1,10 @@
 # Pipeline operations
 
 The `canary` dispatch first reproduces the complete seven-series market inventory and PMXT catalog.
-It then selects the newest common resolved window, retrieves only its two causal PMXT objects, runs
-all seven partitions, publishes to the isolated canary namespace, redownloads every asset, repeats
-verification as an authenticated no-op, and commits the authority receipt.
+It evaluates at most six adjacent official candidates per causal compute round, retrieves at most
+seven PMXT objects for that round, runs all uncovered assets, publishes to the isolated canary
+namespace, redownloads every asset, repeats verification as an authenticated no-op, and commits the
+minimum usable-cover authority receipt.
 
 Production is launched through the accelerated bounded-batch workflow. Its explicit matrix is
 validated against the fresh remote inventory, expected release groups, exact unfinished assets, and

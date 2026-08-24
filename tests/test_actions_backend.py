@@ -889,17 +889,19 @@ class ActionsBackendTests(unittest.TestCase):
 
         with patch("scripts.actions_backend.GammaClient", FakeGamma):
             result = qualify_canary_candidates(authority, source_identity)
-        self.assertEqual([item.start for item in result.candidates], [newest])
-        self.assertEqual(result.gamma_requests, 7)
+        self.assertEqual([item.start for item in result.candidates], [newest, oldest])
+        self.assertEqual(result.gamma_requests, 14)
         self.assertLessEqual(result.gamma_requests, CANARY_MAX_GAMMA_REQUESTS)
-        self.assertEqual(result.source_requests, 2)
+        self.assertEqual(result.source_requests, 3)
         self.assertLessEqual(result.source_requests, CANARY_MAX_SOURCE_OBJECTS)
         self.assertTrue(all(item.startswith("gamma:") for item in events[:7]))
+        self.assertTrue(all(item.startswith("gamma:") for item in events[9:16]))
         self.assertEqual(
             [item.removeprefix("source:") for item in events if item.startswith("source:")],
             [
                 "https://r2v2.pmxt.dev/polymarket_orderbook_2026-04-13T20.parquet",
                 "https://r2v2.pmxt.dev/polymarket_orderbook_2026-04-13T21.parquet",
+                "https://r2v2.pmxt.dev/polymarket_orderbook_2026-04-13T19.parquet",
             ],
         )
 

@@ -60,6 +60,7 @@ CANARY_PRIOR_EVIDENCE_PATH = Path("config/canary-prior-evidence.json")
 LEDGER_PATH = Path("config/backfill-ledger.json")
 CERTIFICATION_PATH = Path("docs/final-certification.json")
 CANARY_MAX_CANDIDATES = 24
+CANARY_COMPUTE_CANDIDATES_PER_ROUND = 6
 CANARY_MAX_GAMMA_REQUESTS = CANARY_MAX_CANDIDATES * len(tuple(Asset))
 CANARY_MAX_SOURCE_OBJECTS = 25
 CANARY_MAX_SOURCE_BYTES = 20_000_000_000
@@ -2089,7 +2090,8 @@ def qualify_canary_candidates(
             if sum(length for length, _ in source_identities.values()) > CANARY_MAX_SOURCE_BYTES:
                 raise RuntimeError("canary exceeded its PMXT source-transfer budget")
         candidates.append(QualifiedCandidate(start, tuple(markets), tuple(payloads)))
-        break
+        if len(candidates) == CANARY_COMPUTE_CANDIDATES_PER_ROUND:
+            break
     if not candidates:
         raise RuntimeError("bounded Actions discovery found no authoritative 1h candidates")
     starts = [candidate.start for candidate in candidates]
