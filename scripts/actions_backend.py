@@ -701,6 +701,11 @@ def _validate_receipt_coverage(
             condition_id = str(projection.get("condition_id", ""))
             token_up = str(projection.get("token_up", ""))
             token_down = str(projection.get("token_down", ""))
+            expected_resolution = (
+                "https://www.binance.com/en/futures/HYPEUSDT"
+                if asset is Asset.HYPE
+                else f"https://www.binance.com/en/trade/{asset.value}_USDT"
+            )
             if (
                 market_start in binding_by_start
                 or market_start not in starts
@@ -728,11 +733,7 @@ def _validate_receipt_coverage(
                     projection.get("official_resolution_ts_ns") is None
                     or isinstance(projection.get("official_resolution_ts_ns"), int)
                 )
-                or not re.fullmatch(
-                    r"https://www\.binance\.com/en/trade/"
-                    rf"{asset.value}_USDT",
-                    str(projection.get("resolution_source_url", "")),
-                )
+                or projection.get("resolution_source_url") != expected_resolution
                 or binding.get("authority_sha256")
                 != hashlib.sha256(canonical_json_bytes(projection)).hexdigest()
             ):
