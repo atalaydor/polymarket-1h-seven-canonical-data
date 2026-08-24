@@ -194,19 +194,38 @@ def _bounded_public_fetch(url: str, max_bytes: int = 25_000_000) -> bytes:
 def audit_source_truth(authority: Authority) -> dict[str, Any]:
     """Reproduce the exact finite PMXT and official 1h market inventories."""
     key_pattern = re.compile(rb"polymarket_orderbook_(\d{4}-\d{2}-\d{2}T\d{2})\.parquet")
+    page_pattern = re.compile(rb"Page <!-- -->(\d+)<!-- --> of <!-- -->(\d+)")
     catalog_keys: set[str] = set()
-    catalog_digest = hashlib.sha256()
-    for page in range(1, 101):
+    total_pages: int | None = None
+    page = 1
+    while total_pages is None or page <= total_pages:
+        if page > 100:
+            raise RuntimeError("PMXT catalog exceeded bounded pagination")
         suffix = "" if page == 1 else f"?page={page}"
-        payload = _bounded_public_fetch(f"https://archive.pmxt.dev/Polymarket/v2{suffix}")
-        catalog_digest.update(payload)
-        observed = {item.decode() for item in key_pattern.findall(payload)}
-        new = observed - catalog_keys
+        url = f"https://archive.pmxt.dev/Polymarket/v2{suffix}"
+        observed: set[str] = set()
+        observed_page = 0
+        observed_total = 0
+        for attempt in range(5):
+            payload = _bounded_public_fetch(url)
+            marker = page_pattern.search(payload)
+            if marker is not None:
+                observed_page = int(marker.group(1))
+                observed_total = int(marker.group(2))
+            observed = {item.decode() for item in key_pattern.findall(payload)}
+            if observed_page == page and observed_total > 0 and observed:
+                break
+            time.sleep(2**attempt)
+        else:
+            raise RuntimeError(f"PMXT catalog page {page} was incomplete after bounded retry")
+        if total_pages is None:
+            total_pages = observed_total
+        if observed_total != total_pages:
+            raise RuntimeError("PMXT catalog page count changed during audit")
+        if catalog_keys & observed:
+            raise RuntimeError(f"PMXT catalog page {page} overlaps an earlier page")
         catalog_keys.update(observed)
-        if not new:
-            break
-    else:
-        raise RuntimeError("PMXT catalog exceeded bounded pagination")
+        page += 1
     expected_keys: set[str] = set()
     current = PMXT_OBJECT_COVERAGE_START
     missing_stamps = {
@@ -227,6 +246,9 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             f"PMXT catalog conflicts with frozen authority: missing={missing} "
             f"unexpected={unexpected}"
         )
+    catalog_digest = hashlib.sha256(
+        canonical_json_bytes(sorted(catalog_keys))
+    ).hexdigest()
 
     expected_starts = tuple(
         range(int(authority.start.timestamp()), int(authority.cutoff.timestamp()), 3_600)
@@ -294,7 +316,7 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
     plan = _full_plan(authority)
     return {
         "pmxt_objects": len(catalog_keys),
-        "pmxt_catalog_sha256": catalog_digest.hexdigest(),
+        "pmxt_catalog_sha256": catalog_digest,
         "pmxt_first_object": min(catalog_keys),
         "pmxt_last_object": max(catalog_keys),
         "pmxt_missing_hours": sorted(missing_stamps),
