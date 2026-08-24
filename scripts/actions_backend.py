@@ -280,9 +280,10 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
         else:
             raise RuntimeError("Gamma series inventory exceeded bounded pagination")
         if set(found) != set(expected_starts):
-            missing = sorted(set(expected_starts) - set(found))[:10]
+            missing_starts = sorted(set(expected_starts) - set(found))[:10]
             raise RuntimeError(
-                f"{asset.value} cannot support the exact intended 1h interval; missing={missing}"
+                f"{asset.value} cannot support the exact intended 1h interval; "
+                f"missing={missing_starts}"
             )
         inventories[asset.value] = {
             "series_id": series_id,
