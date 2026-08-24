@@ -190,7 +190,10 @@ class ActionsBackendTests(unittest.TestCase):
         self.assertIn("max-parallel: 4", workflow)
         self.assertIn("polymarket-1h-seven-canary-authority", workflow)
         self.assertIn("fetch-depth: 0", workflow)
-        self.assertIn("queue: max", workflow)
+        self.assertIn(
+            "queue: max",
+            (root / ".github/workflows/polymarket-1h-seven-accelerated-day.yml").read_text(),
+        )
         self.assertIn("needs:\n      - plan\n      - backfill-day", workflow)
         self.assertLess(
             workflow.index("git pull --ff-only origin main"),
