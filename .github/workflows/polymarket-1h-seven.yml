@@ -99,6 +99,9 @@ jobs:
   backfill-day:
     if: ${{ inputs.mode == 'full-backfill' && needs.plan.outputs.matrix != '{"include":[]}' }}
     needs: plan
+    permissions:
+      actions: write
+      contents: write
     strategy:
       fail-fast: false
       max-parallel: 4
