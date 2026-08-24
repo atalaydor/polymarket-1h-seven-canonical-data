@@ -272,7 +272,8 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             raise RuntimeError(f"Gamma hourly series id is invalid for {asset.value}")
         expected_slugs = {hourly_slug(asset, start): start for start in expected_starts}
         found: dict[int, Market] = {}
-        for offset in range(0, 10_000, 500):
+        offset = 0
+        while offset < 10_000:
             query = urllib.parse.urlencode(
                 {"series_id": series_id, "closed": "true", "limit": 500, "offset": offset}
             )
@@ -297,8 +298,9 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
                 found[start] = market
                 seen_market_ids.add(market.market_id)
                 seen_conditions.add(market.condition_id)
-            if len(events) < 500:
+            if not events:
                 break
+            offset += len(events)
         else:
             raise RuntimeError("Gamma series inventory exceeded bounded pagination")
         if set(found) != set(expected_starts):
