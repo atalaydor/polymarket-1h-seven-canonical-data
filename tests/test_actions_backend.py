@@ -160,7 +160,7 @@ class ActionsBackendTests(unittest.TestCase):
         )
         self.assertEqual(authority.start, datetime(2026, 4, 18, 20, tzinfo=UTC))
         self.assertEqual(authority.cutoff, datetime(2026, 8, 10, 1, tzinfo=UTC))
-        self.assertEqual(authority.canary_search_start, datetime(2026, 8, 5, 23, tzinfo=UTC))
+        self.assertEqual(authority.canary_search_start, datetime(2026, 7, 15, 23, tzinfo=UTC))
         candidates = _candidate_starts(authority)
         self.assertEqual(len(candidates), CANARY_MAX_CANDIDATES)
         self.assertEqual(len(_adaptive_round_authorities(authority)), CANARY_MAX_ROUNDS)

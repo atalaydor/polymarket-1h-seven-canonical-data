@@ -39,10 +39,10 @@
     "compute_candidates_per_round": 6,
     "search": {
       "rounds": [
-        {"start": "2026-08-05T23:00:00Z", "end": "2026-08-05T00:00:00Z", "step_minutes": 60},
-        {"start": "2026-08-03T23:00:00Z", "end": "2026-08-03T00:00:00Z", "step_minutes": 60},
-        {"start": "2026-08-01T23:00:00Z", "end": "2026-08-01T00:00:00Z", "step_minutes": 60},
-        {"start": "2026-07-30T23:00:00Z", "end": "2026-07-30T00:00:00Z", "step_minutes": 60}
+        {"start": "2026-07-15T23:00:00Z", "end": "2026-07-15T00:00:00Z", "step_minutes": 60},
+        {"start": "2026-06-15T23:00:00Z", "end": "2026-06-15T00:00:00Z", "step_minutes": 60},
+        {"start": "2026-05-15T23:00:00Z", "end": "2026-05-15T00:00:00Z", "step_minutes": 60},
+        {"start": "2026-04-25T23:00:00Z", "end": "2026-04-25T00:00:00Z", "step_minutes": 60}
       ]
     },
     "limits": {
