@@ -324,6 +324,23 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             else:
                 raise RuntimeError("Gamma series inventory exceeded bounded window pagination")
             window_start = window_end
+        # Gamma series tags are an efficient inventory index but are not themselves
+        # the slug authority. Reconcile any index omissions against the exact,
+        # deterministic official slug endpoint before declaring an unsupported hour.
+        for start in sorted(set(expected_starts) - set(found)):
+            try:
+                market, _, _ = gamma.fetch_market(asset, start)
+            except urllib.error.HTTPError as exc:
+                if exc.code == 404:
+                    continue
+                raise
+            if market.market_start_ns != start * 1_000_000_000:
+                raise RuntimeError("Gamma slug reconciliation has divergent time identity")
+            if market.market_id in seen_market_ids or market.condition_id in seen_conditions:
+                raise RuntimeError("Gamma slug reconciliation reuses a market identity")
+            found[start] = market
+            seen_market_ids.add(market.market_id)
+            seen_conditions.add(market.condition_id)
         if set(found) != set(expected_starts):
             missing_starts = sorted(set(expected_starts) - set(found))[:10]
             raise RuntimeError(
