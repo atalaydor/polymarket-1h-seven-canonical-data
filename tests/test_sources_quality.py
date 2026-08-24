@@ -332,6 +332,21 @@ class InventoryAndAcquisitionTests(unittest.TestCase):
         self.assertEqual(result.exclusions[0].evidence["condition_id"], CONDITION)
         self.assertEqual(len(result.provenance), 1)
 
+    def test_official_slot_without_clob_identity_is_a_bound_source_gap(self) -> None:
+        raw = json.loads(gamma_payload())
+        raw[0]["markets"][0]["clobTokenIds"] = None
+        result = ProductionSourceLoader(
+            GammaClient(lambda _url, _limit: json.dumps(raw).encode()), 7
+        ).discover(
+            Asset.DOGE,
+            [START_NS // 1_000_000_000],
+            allow_missing=True,
+        )
+        self.assertEqual(result.markets, ())
+        self.assertEqual(result.exclusions[0].reason_code, ExclusionReason.SOURCE_GAP)
+        self.assertEqual(result.exclusions[0].evidence["condition_id"], CONDITION)
+        self.assertEqual(len(result.provenance), 1)
+
     def test_seekable_range_reader_ledgers_and_enforces_cap(self) -> None:
         payload = b"0123456789"
         reader = BoundedRangeReader(

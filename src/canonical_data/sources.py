@@ -10,7 +10,7 @@ from pathlib import Path
 
 from canonical_data.audit import canonical_json_bytes
 from canonical_data.discovery import GammaClient, discover, hourly_slug
-from canonical_data.errors import SourceError, UnresolvedMarketError
+from canonical_data.errors import SourceError, SourceGapMarketError, UnresolvedMarketError
 from canonical_data.manifest import hash_file
 from canonical_data.models import Asset, BookEvent, Exclusion, ExclusionReason, Market, Provenance
 from canonical_data.pmxt import read_pmxt_parquet
@@ -65,8 +65,26 @@ class ProductionSourceLoader:
                         os.fsync(handle.fileno())
                     os.replace(temporary, cached)
             unresolved = False
+            source_gap = False
             try:
                 found = discover([payload])
+            except SourceGapMarketError as exc:
+                if not allow_missing:
+                    raise
+                found = []
+                source_gap = True
+                exclusions.append(
+                    Exclusion(
+                        exc.market_id,
+                        ExclusionReason.SOURCE_GAP,
+                        "official Gamma slot has no tradable CLOB token identity",
+                        {
+                            "condition_id": exc.condition_id,
+                            "payload_sha256": hashlib.sha256(payload).hexdigest(),
+                            "slug": exc.slug,
+                        },
+                    )
+                )
             except UnresolvedMarketError as exc:
                 if not allow_unresolved:
                     raise
@@ -88,7 +106,7 @@ class ProductionSourceLoader:
                 if found[0].market_start_ns != start * 1_000_000_000:
                     raise SourceError("Gamma start does not match inventory")
                 markets.append(found[0])
-            elif unresolved:
+            elif unresolved or source_gap:
                 pass
             elif allow_missing and not found:
                 exclusions.append(

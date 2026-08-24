@@ -14,7 +14,7 @@ from typing import Any, cast
 from zoneinfo import ZoneInfo
 
 from canonical_data.audit import canonical_json_bytes
-from canonical_data.errors import IdentityError, UnresolvedMarketError
+from canonical_data.errors import IdentityError, SourceGapMarketError, UnresolvedMarketError
 from canonical_data.httpclient import USER_AGENT
 from canonical_data.models import Asset, Market, Outcome, QualityTier
 
@@ -179,13 +179,8 @@ def bind_gamma_market(event: dict[str, Any], retrieved_payload: bytes) -> Market
     if parsed_end.tzinfo is None or parsed_end.astimezone(UTC) != expected_end:
         raise IdentityError("official market end does not match the slug's 1-hour window")
     outcomes = [str(value).upper() for value in _json_list(raw.get("outcomes"), "outcomes")]
-    tokens = [str(value) for value in _json_list(raw.get("clobTokenIds"), "clobTokenIds")]
-    if (
-        outcomes != ["UP", "DOWN"]
-        or len(tokens) != 2
-        or not all(token.isdigit() for token in tokens)
-    ):
-        raise IdentityError("outcome/token mapping must be exactly Up,Down")
+    if outcomes != ["UP", "DOWN"]:
+        raise IdentityError("outcome mapping must be exactly Up,Down")
     condition_id = raw.get("conditionId")
     if not isinstance(condition_id, str) or CONDITION.fullmatch(condition_id) is None:
         raise IdentityError("invalid condition id")
@@ -200,6 +195,12 @@ def bind_gamma_market(event: dict[str, Any], retrieved_payload: bytes) -> Market
     market_id = str(raw.get("id", ""))
     if not event_id or not market_id:
         raise IdentityError("official ids are missing")
+    raw_tokens = raw.get("clobTokenIds")
+    if raw_tokens is None:
+        raise SourceGapMarketError(slug, market_id, condition_id)
+    tokens = [str(value) for value in _json_list(raw_tokens, "clobTokenIds")]
+    if len(tokens) != 2 or not all(token.isdigit() for token in tokens):
+        raise IdentityError("token mapping must be exactly two numeric CLOB identities")
     if raw.get("closed") is not True:
         raise UnresolvedMarketError(slug, market_id, condition_id)
     try:

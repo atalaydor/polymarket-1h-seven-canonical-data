@@ -27,6 +27,16 @@ class UnresolvedMarketError(IdentityError):
         self.condition_id = condition_id
 
 
+class SourceGapMarketError(IdentityError):
+    """A fully bound official slot was never assigned tradable CLOB tokens."""
+
+    def __init__(self, slug: str, market_id: str, condition_id: str):
+        super().__init__("market has no CLOB token identity")
+        self.slug = slug
+        self.market_id = market_id
+        self.condition_id = condition_id
+
+
 class ReconstructionError(PipelineError):
     """A book stream cannot be reconstructed without ambiguity."""
 

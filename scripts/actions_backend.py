@@ -25,7 +25,12 @@ import pyarrow.parquet as pq
 
 from canonical_data.audit import canonical_json_bytes
 from canonical_data.discovery import GammaClient, bind_gamma_market, hourly_slug
-from canonical_data.errors import ConflictError, IdentityError, UnresolvedMarketError
+from canonical_data.errors import (
+    ConflictError,
+    IdentityError,
+    SourceGapMarketError,
+    UnresolvedMarketError,
+)
 from canonical_data.httpclient import USER_AGENT
 from canonical_data.inventory import (
     PMXT_MISSING_OBJECT_URLS,
@@ -273,6 +278,7 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
         expected_slugs = {hourly_slug(asset, start): start for start in expected_starts}
         found: dict[int, Market] = {}
         excluded: dict[int, UnresolvedMarketError] = {}
+        source_gaps: dict[int, SourceGapMarketError] = {}
         window_start = authority.start
         while window_start < authority.cutoff:
             window_end = min(window_start + timedelta(days=14), authority.cutoff)
@@ -305,6 +311,32 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
                     start = expected_slugs[cast(str, slug)]
                     try:
                         market = bind_gamma_market(event, canonical_json_bytes(event))
+                    except SourceGapMarketError as exc:
+                        if exc.slug != slug:
+                            raise RuntimeError(
+                                "Gamma source-gap series slug has divergent identity"
+                            ) from exc
+                        prior_gap = source_gaps.get(start)
+                        if prior_gap is not None:
+                            if (
+                                prior_gap.market_id != exc.market_id
+                                or prior_gap.condition_id != exc.condition_id
+                            ):
+                                raise RuntimeError(
+                                    "Gamma source-gap series has divergent identity"
+                                ) from exc
+                            continue
+                        if (
+                            exc.market_id in seen_market_ids
+                            or exc.condition_id in seen_conditions
+                        ):
+                            raise RuntimeError(
+                                "Gamma source-gap series reuses a market identity"
+                            ) from exc
+                        source_gaps[start] = exc
+                        seen_market_ids.add(exc.market_id)
+                        seen_conditions.add(exc.condition_id)
+                        continue
                     except UnresolvedMarketError as exc:
                         if exc.slug != slug:
                             raise RuntimeError(
@@ -355,9 +387,20 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
         # Gamma series tags are an efficient inventory index but are not themselves
         # the slug authority. Reconcile any index omissions against the exact,
         # deterministic official slug endpoint before declaring an unsupported hour.
-        for start in sorted(set(expected_starts) - set(found) - set(excluded)):
+        for start in sorted(
+            set(expected_starts) - set(found) - set(excluded) - set(source_gaps)
+        ):
             try:
                 market, _, _ = gamma.fetch_market(asset, start)
+            except SourceGapMarketError as exc:
+                if exc.slug != hourly_slug(asset, start):
+                    raise RuntimeError("Gamma source-gap slug has divergent identity") from exc
+                if exc.market_id in seen_market_ids or exc.condition_id in seen_conditions:
+                    raise RuntimeError("Gamma source-gap market reuses an identity") from exc
+                source_gaps[start] = exc
+                seen_market_ids.add(exc.market_id)
+                seen_conditions.add(exc.condition_id)
+                continue
             except UnresolvedMarketError as exc:
                 if exc.slug != hourly_slug(asset, start):
                     raise RuntimeError("Gamma unresolved slug has divergent identity") from exc
@@ -383,7 +426,7 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             found[start] = market
             seen_market_ids.add(market.market_id)
             seen_conditions.add(market.condition_id)
-        dispositions = set(found) | set(excluded)
+        dispositions = set(found) | set(excluded) | set(source_gaps)
         if dispositions != set(expected_starts):
             missing_starts = sorted(set(expected_starts) - dispositions)[:10]
             raise RuntimeError(
@@ -395,6 +438,7 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
             "markets": len(dispositions),
             "tier_a_markets": len(found),
             "excluded_unresolved_markets": len(excluded),
+            "excluded_source_gap_markets": len(source_gaps),
             "first_start": expected_starts[0],
             "last_start": expected_starts[-1],
         }
