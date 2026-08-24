@@ -371,6 +371,11 @@ def audit_source_truth(authority: Authority) -> dict[str, Any]:
                 if exc.code == 404:
                     continue
                 raise
+            except IdentityError as exc:
+                raise RuntimeError(
+                    f"{asset.value} exact Gamma slug {hourly_slug(asset, start)} "
+                    f"failed authority binding: {exc}"
+                ) from exc
             if market.market_start_ns != start * 1_000_000_000:
                 raise RuntimeError("Gamma slug reconciliation has divergent time identity")
             if market.market_id in seen_market_ids or market.condition_id in seen_conditions:
