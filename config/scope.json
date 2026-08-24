@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_id": "polymarket-1h-seven-v1",
+  "assets": ["BTC", "ETH", "SOL", "XRP", "DOGE", "BNB", "HYPE"],
+  "venue": "polymarket",
+  "market_type": "actual_up_down",
+  "timeframes": {"included": ["1h"], "excluded": ["5m", "other"]},
+  "partition": "asset/timeframe/utc_date",
+  "sample_interval_ms": 200,
+  "unknown_policy": "exclude_fail_closed",
+  "live_trading": false
+}

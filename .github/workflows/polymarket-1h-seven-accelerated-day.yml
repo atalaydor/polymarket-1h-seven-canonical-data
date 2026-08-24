@@ -1,0 +1,133 @@
+name: Polymarket 1h x 7 isolated compute and serialized publish
+
+on:
+  workflow_call:
+    inputs:
+      assets:
+        required: true
+        type: string
+      day:
+        required: true
+        type: string
+      release_group:
+        required: true
+        type: string
+      retrieved_at_ns:
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  compute-segment:
+    strategy:
+      fail-fast: false
+      matrix:
+        segment: [0, 1, 2, 3]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python -m pip install --disable-pip-version-check --no-cache-dir .
+      - name: Compute one isolated causal day segment
+        env:
+          ASSETS: ${{ inputs.assets }}
+          DAY: ${{ inputs.day }}
+          RELEASE_GROUP: ${{ inputs.release_group }}
+          RETRIEVED_AT_NS: ${{ inputs.retrieved_at_ns }}
+          SEGMENT: ${{ matrix.segment }}
+        run: >-
+          python -m scripts.actions_backend compute-day-segment
+          --day "$DAY"
+          --expected-release-group "$RELEASE_GROUP"
+          --expected-assets "$ASSETS"
+          --segment-index "$SEGMENT"
+          --segment-count 4
+          --retrieved-at-ns "$RETRIEVED_AT_NS"
+          --bundle-root "$RUNNER_TEMP/segment-bundle"
+      - name: Store immutable causal checkpoint
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: segment-${{ github.run_id }}-${{ inputs.day }}-${{ matrix.segment }}
+          path: ${{ runner.temp }}/segment-bundle
+          if-no-files-found: error
+          retention-days: 1
+
+  assemble:
+    needs: compute-segment
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python -m pip install --disable-pip-version-check --no-cache-dir .
+      - name: Retrieve all immutable causal checkpoints
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: segment-${{ github.run_id }}-${{ inputs.day }}-*
+          path: ${{ runner.temp }}/segments
+      - name: Authenticate and assemble canonical day bytes
+        env:
+          ASSETS: ${{ inputs.assets }}
+          DAY: ${{ inputs.day }}
+          RELEASE_GROUP: ${{ inputs.release_group }}
+          RETRIEVED_AT_NS: ${{ inputs.retrieved_at_ns }}
+        run: >-
+          python -m scripts.actions_backend assemble-day-segments
+          --day "$DAY"
+          --expected-release-group "$RELEASE_GROUP"
+          --expected-assets "$ASSETS"
+          --segment-count 4
+          --retrieved-at-ns "$RETRIEVED_AT_NS"
+          --segments-root "$RUNNER_TEMP/segments"
+          --bundle-root "$RUNNER_TEMP/staged-bundle"
+      - id: upload
+        name: Store immutable noncanonical staging bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: staged-${{ github.run_id }}-${{ inputs.day }}
+          path: ${{ runner.temp }}/staged-bundle
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: assemble
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      actions: write
+      contents: write
+    concurrency:
+      group: polymarket-1h-seven-release-${{ inputs.release_group }}
+      queue: max
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python -m pip install --disable-pip-version-check --no-cache-dir .
+      - name: Retrieve immutable staging bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: staged-${{ github.run_id }}-${{ inputs.day }}
+          path: ${{ runner.temp }}/staged-bundle
+      - name: Authenticate and publish under the short release writer
+        env:
+          DAY: ${{ inputs.day }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_GROUP: ${{ inputs.release_group }}
+        run: >-
+          python -m scripts.actions_backend publish-staged-day
+          --day "$DAY"
+          --expected-release-group "$RELEASE_GROUP"
+          --bundle-root "$RUNNER_TEMP/staged-bundle"
+      - name: Delete transient staging artifact after durable publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh api --method DELETE
+          "repos/${GITHUB_REPOSITORY}/actions/artifacts/${{ needs.assemble.outputs.artifact-id }}"

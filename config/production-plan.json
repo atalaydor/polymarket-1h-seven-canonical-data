@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_id": "polymarket-1h-seven-v1",
+  "status": "CANARY_REQUIRED",
+  "coverage_start": "2026-04-13T20:00:00Z",
+  "release_cutoff": "2026-08-10T01:00:00Z",
+  "partition": {
+    "unit": "asset/timeframe/utc_date",
+    "assets": ["BTC", "ETH", "SOL", "XRP", "DOGE", "BNB", "HYPE"],
+    "timeframe": "1h"
+  },
+  "execution": {
+    "unit": "four_disjoint_six_hour_causal_segments_per_unfinished_utc_day",
+    "source_reuse": "one PMXT acquisition and combined seven-asset identity scan per segment with bounded authenticated fragments",
+    "segment_count": 4,
+    "parallel_days": 4,
+    "maximum_parallel_compute_jobs": 16,
+    "retry_attempts": 3,
+    "retry_delays_seconds": [2, 8, 32],
+    "retry_only_transient_http": true,
+    "job_timeout_minutes": 360
+  },
+  "publication": {
+    "release_prefix": "polymarket-1h-seven-v1",
+    "canary_release_prefix": "polymarket-1h-seven-canary-v1",
+    "grouping": "half_month",
+    "maximum_assets_per_release": 672,
+    "draft_first": true,
+    "independent_partition_publication": true
+  },
+  "quality": {
+    "tier_a": "official resolved Gamma identity/rules/outcome plus gap-free PMXT reconstruction",
+    "tier_b": null,
+    "inferred_settlement": false,
+    "unknown": "EXCLUDED with evidence"
+  },
+  "canary": {
+    "scope": "find one common resolved 1h window for all seven assets and prove source, isolated compute, authenticated staging, deterministic assembly, publication, redownload, and no-op reconciliation",
+    "search": {
+      "rounds": [
+        {"start": "2026-08-05T23:00:00Z", "end": "2026-08-05T00:00:00Z", "step_minutes": 60},
+        {"start": "2026-08-03T23:00:00Z", "end": "2026-08-03T00:00:00Z", "step_minutes": 60},
+        {"start": "2026-08-01T23:00:00Z", "end": "2026-08-01T00:00:00Z", "step_minutes": 60},
+        {"start": "2026-07-30T23:00:00Z", "end": "2026-07-30T00:00:00Z", "step_minutes": 60}
+      ]
+    },
+    "limits": {
+      "max_rounds": 4,
+      "max_candidates_per_round": 24,
+      "max_candidates_total": 96,
+      "max_gamma_requests_total": 672,
+      "max_source_objects_total": 100,
+      "max_source_transfer_bytes_total": 80000000000,
+      "max_wall_seconds": 18000
+    },
+    "full_plan_unlock": "committed config/canary-receipt.json with PASSED status"
+  }
+}

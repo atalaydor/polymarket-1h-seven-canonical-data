@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "accessed_at": "2026-08-24",
+  "classification": "pre_canary_conservative_bound_plus_remote_measurement_contract",
+  "reference_measurement": {
+    "repository": "atalaydor/polymarket-15m-seven-canonical-data",
+    "certified_commit": "d8fad022c9a4417780f2df8811571b1e16a3238d",
+    "measured_max_rows_per_condition_per_hourly_object": 810276,
+    "measured_full_day_source_objects": 25,
+    "measured_full_day_source_bytes": 12557382976,
+    "measured_full_day_compute_seconds": 19278,
+    "measured_peak_rss_kib": 5805896
+  },
+  "one_hour_bounds": {
+    "pre_canary_density_multiplier": 5,
+    "max_rows_per_market_per_object": 4051380,
+    "causal_objects_per_market": 2,
+    "max_rows_per_market": 8102760,
+    "markets_intersecting_one_object_per_asset": 2,
+    "max_rows_per_object_per_asset": 8102760,
+    "max_markets_per_asset_day": 24,
+    "max_rows_per_asset_day": 194466240
+  },
+  "topology_derivation": {
+    "market_starts_per_day": 24,
+    "segments_per_day": 4,
+    "market_starts_per_segment": 6,
+    "source_objects_per_segment": 7,
+    "parallel_days": 4,
+    "maximum_parallel_compute_jobs": 16,
+    "estimated_compute_seconds_per_segment_from_reference_object_rate": 5398,
+    "runner": "ubuntu-24.04 public repository: 4 CPU, 16 GB RAM, 14 GB SSD",
+    "canary_receipt_fields": [
+      "source_transfer_bytes",
+      "wall_seconds",
+      "peak_rss_kib",
+      "minimum_free_disk_bytes"
+    ]
+  }
+}

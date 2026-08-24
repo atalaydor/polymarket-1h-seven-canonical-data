@@ -1,0 +1,7 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Causal 200 ms book representation",
+  "type":"object",
+  "required":["condition_id","token_id","grid_ts_ns","asof_source_ts_ns","asof_receive_ts_ns","bids","asks","stale_ms","source_event_sequence"],
+  "properties":{"condition_id":{"type":"string"},"token_id":{"type":"string"},"grid_ts_ns":{"type":"integer"},"asof_source_ts_ns":{"type":"integer"},"asof_receive_ts_ns":{"type":["integer","null"]},"bids":{"type":"array"},"asks":{"type":"array"},"stale_ms":{"type":"integer","minimum":0},"source_event_sequence":{"type":"integer","minimum":0}}
+}

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+probe-tmp/
+.test-tmp/
+test-tmp-write/
+data/
+*.parquet
+*.zip

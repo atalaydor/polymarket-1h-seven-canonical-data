@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Market identity and resolution row",
+  "type":"object",
+  "required":["asset","venue","timeframe","event_id","market_id","condition_id","token_up","token_down","market_start_ns","market_end_ns","rules_text_sha256","resolution_source_url","official_outcome","quality_tier"],
+  "properties":{
+    "asset":{"enum":["BTC","ETH","SOL","XRP","DOGE","BNB","HYPE"]},"venue":{"const":"polymarket"},"timeframe":{"const":"1h"},
+    "event_id":{"type":"string"},"market_id":{"type":"string"},"condition_id":{"type":"string","pattern":"^0x[0-9a-f]{64}$"},
+    "token_up":{"type":"string","pattern":"^[0-9]+$"},"token_down":{"type":"string","pattern":"^[0-9]+$"},
+    "market_start_ns":{"type":"integer"},"market_end_ns":{"type":"integer"},"rules_text_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "resolution_source_url":{"type":"string"},"official_outcome":{"enum":["UP","DOWN","SPLIT"]},
+    "official_resolution_ts_ns":{"type":["integer","null"]},"quality_tier":{"const":"TIER_A"},"exclusion_reason":{"type":["string","null"]}
+  }
+}

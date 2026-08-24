@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_id": "polymarket-1h-seven-v1",
+  "resource_limits": {
+    "max_markets_per_partition": 24,
+    "max_pmxt_rows_per_partition": 194466240,
+    "max_derived_samples_per_partition": 4000000,
+    "max_underlying_rows_per_partition": 0,
+    "max_transformed_partition_bytes": 1000000000,
+    "max_source_object_bytes": 800000000,
+    "max_pmxt_scanned_rows_per_object": 25000000,
+    "max_pmxt_filtered_rows_per_market": 8102760,
+    "max_pmxt_filtered_rows_per_object_per_asset": 8102760,
+    "max_pmxt_filtered_rows_per_day_per_asset": 194466240,
+    "max_release_asset_bytes": 1900000000,
+    "minimum_free_disk_bytes": 4000000000,
+    "minimum_available_memory_bytes": 2000000000
+  },
+  "execution": {
+    "workers": 4,
+    "sample_interval_ms": 200,
+    "partition": "asset/1h/utc_date",
+    "shared_source_unit": "six_hour_causal_segment"
+  },
+  "publication": {
+    "provider": "github_releases",
+    "draft_first": true,
+    "content_addressed": true,
+    "verify_download": true
+  }
+}

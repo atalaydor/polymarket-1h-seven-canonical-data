@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_class": "timeframe_neutral_raw_source_catalog_metadata",
+  "source": {
+    "id": "pmxt_v2",
+    "documentation_url": "https://archive.pmxt.dev/docs/v2-data-overview",
+    "catalog_url": "https://archive.pmxt.dev/Polymarket/v2",
+    "accessed_at": "2026-08-24"
+  },
+  "refreshed_pmxt_catalog": {
+    "catalog_url": "https://archive.pmxt.dev/Polymarket/v2",
+    "accessed_at": "2026-08-24",
+    "objects": 2835,
+    "object_start": "2026-04-13T19:00:00Z",
+    "object_end": "2026-08-10T00:00:00Z",
+    "expected_hour_keys": 2838,
+    "missing_hour_keys": [
+      "2026-06-11T04:00:00Z",
+      "2026-06-11T05:00:00Z",
+      "2026-06-11T06:00:00Z"
+    ],
+    "reproduction": "The canary paginates the public catalog, compares its exact key set with the finite hourly inventory, and records the concatenated catalog SHA-256."
+  },
+  "validation_coverage": {
+    "start": "2026-04-13T20:00:00Z",
+    "cutoff": "2026-08-10T01:00:00Z",
+    "lookback_hours": 1,
+    "reason": "The 19:00 object is causal warm-up for the first 20:00 market; the last 00:00 object supports the final 00:00-01:00 market."
+  },
+  "authority_boundary": "No market identity, settlement, manifest, receipt, release, or certification is imported from another repository."
+}

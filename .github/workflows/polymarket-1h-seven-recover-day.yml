@@ -1,0 +1,37 @@
+name: Polymarket 1h x 7 bounded day recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: One unresolved UTC day from the frozen finite plan
+        required: true
+        type: string
+      release_group:
+        description: Frozen release group owning that UTC day
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  recover-day:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    permissions:
+      contents: write
+    concurrency:
+      group: polymarket-1h-seven-release-${{ inputs.release_group }}
+      queue: max
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: git pull --ff-only origin main
+      - run: python -m pip install --disable-pip-version-check --no-cache-dir .
+      - name: Recover only authenticated unfinished assets for the requested UTC day
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python -m scripts.actions_backend execute-day
+          --day "${{ inputs.day }}"
+          --expected-release-group "${{ inputs.release_group }}"

@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Loss-minimized source book event",
+  "type":"object",
+  "required":["condition_id","token_id","source_ts_ns","receive_ts_ns","sequence","event_type","source_id"],
+  "properties":{
+    "condition_id":{"type":"string"},"token_id":{"type":"string"},"source_ts_ns":{"type":"integer"},"receive_ts_ns":{"type":["integer","null"]},
+    "sequence":{"type":"integer","minimum":0},"event_type":{"enum":["BOOK","PRICE_CHANGE","LAST_TRADE_PRICE","TICK_SIZE_CHANGE"]},
+    "bids":{"type":["array","null"],"items":{"$ref":"#/$defs/level"}},"asks":{"type":["array","null"],"items":{"$ref":"#/$defs/level"}},
+    "side":{"enum":["BUY","SELL",null]},"price":{"type":["string","null"]},"size":{"type":["string","null"]},
+    "old_tick_size":{"type":["string","null"]},"new_tick_size":{"type":["string","null"]},"transaction_hash":{"type":["string","null"]},"source_id":{"type":"string"}
+  },
+  "$defs":{"level":{"type":"object","required":["price","size"],"properties":{"price":{"type":"string"},"size":{"type":"string"}}}}
+}

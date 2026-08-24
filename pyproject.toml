@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "polymarket-1h-seven-canonical-data"
+version = "1.0.0"
+description = "Canonical historical tooling for seven Polymarket 1-hour Up/Down assets"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pyarrow==21.0.0", "tzdata==2025.2; platform_system == 'Windows'"]
+license = {text = "License intentionally not selected pending combined-data review"}
+authors = [{name = "Project contributors"}]
+
+[project.scripts]
+dataset-audit = "canonical_data.audit:main"
+dataset-pipeline = "canonical_data.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/canonical_data"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true

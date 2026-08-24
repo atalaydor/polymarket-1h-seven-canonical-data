@@ -1,0 +1,43 @@
+name: Polymarket 1h x 7 accelerated bounded batch
+
+on:
+  workflow_dispatch:
+    inputs:
+      matrix:
+        description: Authenticated explicit JSON include matrix of unowned UTC days
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  validate-plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    outputs:
+      matrix: ${{ steps.validate.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python -m pip install --disable-pip-version-check --no-cache-dir .
+      - id: validate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUESTED_MATRIX: ${{ inputs.matrix }}
+        run: python -m scripts.actions_backend validate-accelerated-matrix
+
+  accelerated-day:
+    needs: validate-plan
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.validate-plan.outputs.matrix) }}
+    uses: ./.github/workflows/polymarket-1h-seven-accelerated-day.yml
+    with:
+      assets: ${{ matrix.assets }}
+      day: ${{ matrix.day }}
+      release_group: ${{ matrix.release_group }}
+      retrieved_at_ns: ${{ matrix.retrieved_at_ns }}

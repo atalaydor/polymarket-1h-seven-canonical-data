@@ -1,0 +1,54 @@
+{
+  "audit_date": "2026-08-24",
+  "dataset_id": "polymarket-1h-seven-v1",
+  "sources": [
+    {
+      "id": "pmxt_v2",
+      "class": "PRIMARY",
+      "role": "timeframe_neutral_event_book_filtered_by_official_condition_and_tokens",
+      "license": "CC-BY-4.0",
+      "url": "https://archive.pmxt.dev/docs/v2-data-overview",
+      "catalog_url": "https://archive.pmxt.dev/Polymarket/v2",
+      "accessed_at": "2026-08-24",
+      "object_coverage_start": "2026-04-13T19:00:00Z",
+      "object_coverage_end": "2026-08-10T00:00:00Z",
+      "validation_coverage_start": "2026-04-13T20:00:00Z",
+      "validation_coverage_cutoff": "2026-08-10T01:00:00Z",
+      "reuse": "fresh 1h repository evidence; the first raw hour is causal lookback only; no product-specific evidence is imported"
+    },
+    {
+      "id": "polymarket_gamma_clob",
+      "class": "PRIMARY",
+      "role": "1h_identity_rules_tokens_and_official_outcome",
+      "license": "ungranted_for_bulk_redistribution",
+      "url": "https://docs.polymarket.com/market-data/overview",
+      "accessed_at": "2026-08-24",
+      "reuse": "software method only; every 1h payload is newly retrieved"
+    },
+    {
+      "id": "binance_rules_binding",
+      "class": "AUTHORITY_BINDING",
+      "role": "exact ASSET_USDT one_hour_candle named by each official market",
+      "license": "not_redistributed",
+      "url": "https://www.binance.com/en/trade/BTC_USDT",
+      "accessed_at": "2026-08-24",
+      "reuse": "none; the exact asset-specific URL and candle semantics are bound from every fresh Gamma rules payload"
+    },
+    {
+      "id": "kacho_5m",
+      "class": "EXCLUDED",
+      "role": "5m_specific_and_not_authority_for_1h",
+      "license": "CC0-1.0",
+      "url": "https://huggingface.co/datasets/kachoio/polymarket-5-minute-crypto-up-down-markets",
+      "accessed_at": "2026-08-24"
+    },
+    {
+      "id": "binance_public",
+      "class": "REFERENCE_ONLY",
+      "role": "public archive for optional independent candle checks; official Gamma outcome remains canonical",
+      "license": "MIT_archive_repository_claim",
+      "url": "https://github.com/binance/binance-public-data",
+      "accessed_at": "2026-08-24"
+    }
+  ]
+}
