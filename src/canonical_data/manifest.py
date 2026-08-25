@@ -98,10 +98,7 @@ def build_manifest(
             for item in provenance_rows
         ],
         "tool_commit": tool_commit,
-        "parameters": {
-            "sample_interval_ms": 200,
-            "ordering": "receive,source,object,row_desc_on_exact_timestamp_tie",
-        },
+        "parameters": {"sample_interval_ms": 200, "ordering": "receive,source,object,row"},
         "statistics": statistics,
         "coverage_start_ns": coverage_start_ns,
         "release_cutoff_ns": release_cutoff_ns,

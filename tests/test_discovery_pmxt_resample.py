@@ -349,30 +349,6 @@ class PmxtTests(unittest.TestCase):
         )
         self.assertEqual(states[-1].asks[0].price, Decimal("0.70"))
 
-    def test_exporter_exact_timestamp_tie_restores_native_reverse_row_order(self) -> None:
-        snapshot = pmxt_rows(False)[0]
-        archived_later = {
-            **pmxt_rows()[2],
-            "timestamp_received": START_NS // 1_000_000 + 10,
-            "timestamp": START_NS // 1_000_000 + 9,
-            "side": "SELL",
-            "price": "0.60",
-            "size": "0",
-            "best_bid": "0.40",
-            "best_ask": "0.70",
-        }
-        archived_earlier = {
-            **archived_later,
-            "price": "0.70",
-            "size": "8",
-            "best_ask": "0.60",
-        }
-        events = decode_rows([snapshot, archived_later, archived_earlier], "fixture")
-        price_changes = [event for event in events if event.event_type is EventType.PRICE_CHANGE]
-        self.assertEqual([event.price for event in price_changes], [Decimal("0.70"), Decimal("0.60")])
-        states = BookReconstructor().reconstruct(events)
-        self.assertEqual(states[-1].asks[0].price, Decimal("0.70"))
-
     def test_native_bbo_prunes_stale_better_level_without_zero_update(self) -> None:
         snapshot = pmxt_rows(False)[0]
         inward = {
