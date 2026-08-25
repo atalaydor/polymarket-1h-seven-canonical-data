@@ -58,10 +58,34 @@
       "HYPE": {"events": 13288, "book": 20, "price_change": 13258, "last_trade": 8, "token_event_counts": [6648, 6640]}
     },
     "four_asset_root_causes": {
-      "SOL": "Exact official condition and both tokens yielded 51,549 rows. A same-timestamp pair removed ask 0.46 while claiming 0.47 and updated bid 0.41 while claiming ask 0.46; the exported order cannot be inferred. Reversing ties passed that point but failed later.",
-      "XRP": "Exact official condition and both tokens yielded 34,804 rows. A same-timestamp pair removed bid 0.50 while claiming 0.49 and removed ask 0.75 while claiming bid 0.50; the terminal order is absent. Reversing ties passed that point but failed later.",
-      "DOGE": "Exact official condition and both tokens yielded 39,186 rows. Exact-timestamp rows repeatedly update the same bid/ask prices at different sizes while carrying divergent terminal quotes; neither exported direction is globally consistent.",
-      "BNB": "Exact official condition and both tokens yielded 27,742 rows. One tie requires descending physical order to retain bid 0.48, while an earlier tie in the same object requires ascending order to retain ask 0.57. No global row-order correction exists."
+      "SOL": {
+        "market_id": "3315300",
+        "gamma_url": "https://gamma-api.polymarket.com/events/slug/solana-up-or-down-august-5-2026-2pm-et",
+        "condition_id": "0xec89e260dd9866bec5fdf23d4219b10754442f918231210398fd6aa634f9bb9b",
+        "clob_token_ids": ["2909166615633152675924030284928198502508704053503293852389414830381958237613", "3688608410898370199313760084603953839937353024033904298520837426146069860673"],
+        "cause": "Both tokens yielded 51,549 rows. A same-timestamp pair removed ask 0.46 while claiming 0.47 and updated bid 0.41 while claiming ask 0.46; the exported order cannot be inferred. Reversing ties passed that point but failed later."
+      },
+      "XRP": {
+        "market_id": "3315301",
+        "gamma_url": "https://gamma-api.polymarket.com/events/slug/xrp-up-or-down-august-5-2026-2pm-et",
+        "condition_id": "0xfaad308218599ffab7c24afac217d228bc8092c1827450ce5776ccd0f2ad0385",
+        "clob_token_ids": ["98518867168384034988683586477013619927808760781286982242598891016619812394967", "37619327592258311992977567071719568242698043351282072008696692847066891259237"],
+        "cause": "Both tokens yielded 34,804 rows. A same-timestamp pair removed bid 0.50 while claiming 0.49 and removed ask 0.75 while claiming bid 0.50; the terminal order is absent. Reversing ties passed that point but failed later."
+      },
+      "DOGE": {
+        "market_id": "3315302",
+        "gamma_url": "https://gamma-api.polymarket.com/events/slug/dogecoin-up-or-down-august-5-2026-2pm-et",
+        "condition_id": "0x1a48def3183fe18f2bb1e55178bdd3329e9ab1c417aba351bf338d52193d693e",
+        "clob_token_ids": ["111071441765062350714956510144475702751429238614784214046937386364737771825281", "30100614877903665046483177518641882800159226842714442517472291266929081856141"],
+        "cause": "Both tokens yielded 39,186 rows. Exact-timestamp rows repeatedly update the same bid/ask prices at different sizes while carrying divergent terminal quotes; neither exported direction is globally consistent."
+      },
+      "BNB": {
+        "market_id": "3315304",
+        "gamma_url": "https://gamma-api.polymarket.com/events/slug/bnb-up-or-down-august-5-2026-2pm-et",
+        "condition_id": "0x9c14804121bf7bb15de253ef2bcc7e8e393e147446e1da2969b09735dcc3fbd0",
+        "clob_token_ids": ["2793933827937848121471503455755959858827476897684749005499492240577180068159", "43243347670335255006518849714728420239000375119326522956423214458301796145423"],
+        "cause": "Both tokens yielded 27,742 rows. One tie requires descending physical order to retain bid 0.48, while an earlier tie in the same object requires ascending order to retain ask 0.57. No global row-order correction exists."
+      }
     }
   },
   "previous_distributed_probe": {
