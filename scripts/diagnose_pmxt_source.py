@@ -148,7 +148,9 @@ def main() -> None:
                 if positions:
                     lower = max(0, positions[0] - 2)
                     upper = min(len(ordered), positions[-1] + 3)
-                    result["conflict_neighborhood"] = [_event(event) for event in ordered[lower:upper]]
+                    result["conflict_neighborhood"] = [
+                        _event(event) for event in ordered[lower:upper]
+                    ]
         print(json.dumps(result, sort_keys=True))
 
 
