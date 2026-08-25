@@ -1,0 +1,23 @@
+name: Validate canonical tooling
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install frozen package and validators
+        run: |
+          python -m pip install --disable-pip-version-check --no-cache-dir .
+          python -m pip install --disable-pip-version-check --no-cache-dir ruff==0.12.12 mypy==1.17.1
+      - name: Validate source blocker authority and workflows
+        run: |
+          python -m unittest discover -s tests -v
+          ruff check .
+          mypy
+          git diff --check

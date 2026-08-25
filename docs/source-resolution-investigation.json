@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_id": "polymarket-1h-seven-v1",
+  "access_date": "2026-08-25",
+  "verdict": "IRRECOVERABLE_FREE_SEVEN_ASSET_CLOB_SOURCE",
+  "production_dispatched": false,
+  "candidate_authority": {
+    "interval": "[2026-04-18T20:00:00Z, 2026-08-10T01:00:00Z)",
+    "market_starts_per_asset": 2717,
+    "market_count": 19019,
+    "utc_dates": 115,
+    "partition_count": 805,
+    "status": "FROZEN_BUT_NOT_ADMITTED"
+  },
+  "pmxt_root_cause": {
+    "collector_event_model_url": "https://github.com/pmxt-dev/polymarket-orderbook-collector/blob/main/shared/rust/polymarket-orderbook-rust/src/events.rs",
+    "exporter_url": "https://github.com/pmxt-dev/polymarket-orderbook-collector/blob/main/services/r2-archive/exporter/run.py",
+    "finding": "The collector explodes each native price_changes array into independent rows, but the Polymarket R2 exporter neither exports receive_sequence/row_index nor orders by them. Its only ordering keys are market, asset_id, and timestamp_received. The exporter also omits the captured native hash from the public Parquet schema. Exact timestamp ties therefore lose their native row order and message grouping.",
+    "contrast": "The same exporter explicitly retains and orders by receive_sequence,row_index for Limitless and Opinion, but not for Polymarket.",
+    "irrecoverability": "The public Parquet rows contain exact-timestamp groups with repeated updates to the same price at different sizes and mutually incompatible claimed best_bid/best_ask transitions. Ascending and descending source-row trials each repair some early contradictions and create or expose others. Because the omitted sequence/group/hash fields are not derivable from the remaining columns, a deterministic full-depth native replay cannot choose the true terminal size/order without fabrication or lookahead.",
+    "not_caused_by": [
+      "Gamma slug or one-hour boundary mapping",
+      "conditionId mapping",
+      "clobTokenIds or outcome-token mapping",
+      "cross-market or cross-token contamination",
+      "missing causal warm-up for the representative hour"
+    ]
+  },
+  "bounded_raw_probe": {
+    "baseline_run_id": 32832128591,
+    "baseline_url": "https://github.com/atalaydor/polymarket-1h-seven-canonical-data/actions/runs/32832128591",
+    "baseline_commit": "b582095",
+    "reverse_tie_trial_run_id": 32832685456,
+    "reverse_tie_trial_url": "https://github.com/atalaydor/polymarket-1h-seven-canonical-data/actions/runs/32832685456",
+    "reverse_tie_trial_commit": "08cf348",
+    "market_start": "2026-08-05T18:00:00Z",
+    "source_objects": [
+      {
+        "url": "https://r2v2.pmxt.dev/polymarket_orderbook_2026-08-05T17.parquet",
+        "byte_length": 619084079,
+        "role": "causal_warmup"
+      },
+      {
+        "url": "https://r2v2.pmxt.dev/polymarket_orderbook_2026-08-05T18.parquet",
+        "byte_length": 653403933,
+        "role": "market_hour"
+      }
+    ],
+    "filtered_events": 1004958,
+    "result": "All seven fresh Gamma identities and both exact official tokens were populated. All seven reconstructions remained EVENT_CONFLICT under both the baseline and a global reverse-exact-tie trial.",
+    "assets": {
+      "BTC": {"events": 538644, "book": 2650, "price_change": 534700, "last_trade": 1294, "token_event_counts": [269369, 269275]},
+      "ETH": {"events": 299745, "book": 872, "price_change": 298438, "last_trade": 435, "token_event_counts": [149663, 150082]},
+      "SOL": {"events": 51549, "book": 274, "price_change": 51141, "last_trade": 134, "token_event_counts": [25769, 25780]},
+      "XRP": {"events": 34804, "book": 74, "price_change": 34691, "last_trade": 37, "token_event_counts": [17407, 17397]},
+      "DOGE": {"events": 39186, "book": 56, "price_change": 39103, "last_trade": 27, "token_event_counts": [19585, 19601]},
+      "BNB": {"events": 27742, "book": 47, "price_change": 27671, "last_trade": 22, "token_event_counts": [13869, 13873]},
+      "HYPE": {"events": 13288, "book": 20, "price_change": 13258, "last_trade": 8, "token_event_counts": [6648, 6640]}
+    },
+    "four_asset_root_causes": {
+      "SOL": "Exact official condition and both tokens yielded 51,549 rows. A same-timestamp pair removed ask 0.46 while claiming 0.47 and updated bid 0.41 while claiming ask 0.46; the exported order cannot be inferred. Reversing ties passed that point but failed later.",
+      "XRP": "Exact official condition and both tokens yielded 34,804 rows. A same-timestamp pair removed bid 0.50 while claiming 0.49 and removed ask 0.75 while claiming bid 0.50; the terminal order is absent. Reversing ties passed that point but failed later.",
+      "DOGE": "Exact official condition and both tokens yielded 39,186 rows. Exact-timestamp rows repeatedly update the same bid/ask prices at different sizes while carrying divergent terminal quotes; neither exported direction is globally consistent.",
+      "BNB": "Exact official condition and both tokens yielded 27,742 rows. One tie requires descending physical order to retain bid 0.48, while an earlier tie in the same object requires ascending order to retain ask 0.57. No global row-order correction exists."
+    }
+  },
+  "previous_distributed_probe": {
+    "candidate_hours_per_blocked_asset": 48,
+    "dates": ["2026-08-05", "2026-08-03", "2026-08-01", "2026-07-30", "2026-07-15", "2026-06-15", "2026-05-15", "2026-04-25"],
+    "blocked_assets": ["SOL", "XRP", "DOGE", "BNB"],
+    "outcomes": ["EVENT_CONFLICT", "SOURCE_GAP"],
+    "evidence": "docs/source-conflict-evidence.json"
+  },
+  "alternative_sources": {
+    "Alezanello/polymarket-arena-capture": {
+      "url": "https://huggingface.co/datasets/Alezanello/polymarket-arena-capture",
+      "actual_inventory_api": "https://huggingface.co/api/datasets/Alezanello/polymarket-arena-capture/tree/main?recursive=true&expand=true",
+      "actual_files": "One 205,407,384-byte root cap_book file plus 15 daily cap_book files; the last object is daily/cap_book/2026-06-29T171541Z.parquet. The actual cap_book download is 779,831,894 bytes and 22,032,020 rows.",
+      "claimed_window": "2026-06-04 onward",
+      "actual_available_tail": "2026-06-29T17:15:41Z filename; no later cap_book object",
+      "assets": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE"],
+      "missing_assets": ["HYPE"],
+      "semantics": "Approximately two-second collector-clock snapshots/top-of-book with top-N depth fields, not exchange-time native event ordering. Actual data-viewer rows frequently have null bids/asks.",
+      "verdict": "Not a seven-asset source and not equivalent to the native 200 ms full-depth event contract."
+    },
+    "krish301/polymarket-raw-1h": {
+      "url": "https://github.com/krish301/polymarket-raw-1h",
+      "actual_contents": "GitHub repository/content API returned 404; no public downloadable data was available.",
+      "verdict": "Unavailable."
+    },
+    "rocklabs-io/polymarket-dataset": {
+      "url": "https://github.com/rocklabs-io/polymarket-dataset",
+      "actual_contents": "The public repository contains LICENSE and README only, not the described hourly raw files.",
+      "access": "The README requires an access request with name and institutional affiliation; it is not anonymous credential-free download authority.",
+      "verdict": "Not presently accessible under the production source contract."
+    }
+  },
+  "common_interval_decision": {
+    "admitted_seven_asset_interval": null,
+    "admitted_partition_count": 0,
+    "reason": "No inspected free source supplies reliable full-depth CLOB state for all seven assets over any established common interval. Arena lacks HYPE and ends in June; PMXT's HYPE rows have the same lost-order conflict, so combining them does not create a reliable seven-asset interval."
+  },
+  "gate": "Production remains undispatched. EVENT_CONFLICT/SOURCE_GAP are not converted into nominal coverage, and no weaker snapshot/trade/synthetic source is admitted."
+}

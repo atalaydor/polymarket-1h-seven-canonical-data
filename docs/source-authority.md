@@ -1,6 +1,12 @@
 # Source authority
 
-Evidence was reproduced on 2026-08-24 and is rechecked by the remote canary.
+Evidence was reproduced on 2026-08-24 and re-audited on 2026-08-25.
+
+**Production source gate is closed.** The bounded raw investigation in
+[`source-resolution-investigation.json`](source-resolution-investigation.json) proves that the
+public PMXT Polymarket export dropped the native sequence/grouping required for deterministic
+full-depth reconstruction. No inspected free fallback supplies a reliable seven-asset common
+interval. The frozen plan remains candidate authority only; no production dispatch is permitted.
 
 | Source | Controlling role |
 |---|---|
