@@ -130,7 +130,11 @@ class BookEvent:
         effective_receive = (
             self.receive_ts_ns if self.receive_ts_ns is not None else self.source_ts_ns
         )
-        return (effective_receive, self.source_ts_ns, self.source_object, self.source_row)
+        # PMXT's Polymarket exporter orders only by market, token and receive
+        # timestamp. ClickHouse emits exact timestamp ties in reverse physical
+        # row order; reversing that final tie restores the native exploded-array
+        # order while source time remains the primary causal key.
+        return (effective_receive, self.source_ts_ns, self.source_object, -self.source_row)
 
 
 @dataclass(frozen=True)
