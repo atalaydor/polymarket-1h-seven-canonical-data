@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "dataset_id": "polymarket-1h-seven-v1",
-  "status": "CANARY_REQUIRED",
+  "status": "BLOCKED_SOURCE_CONFLICT",
   "coverage_start": "2026-04-18T20:00:00Z",
   "release_cutoff": "2026-08-10T01:00:00Z",
   "partition": {

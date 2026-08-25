@@ -8,6 +8,12 @@ The frozen source interval is 2026-04-18T20:00:00Z through the exclusive
 partitions. The first PMXT object is causal warm-up only. Every official hourly identity is
 reproduced from its asset-specific Gamma series before production can unlock.
 
+Production is fail-closed. Two authenticated remote canaries proved the complete storage and
+reconciliation path, but PMXT did not yield a reconstructable market in any of 48 distributed
+candidate hours for SOL, XRP, DOGE, or BNB. The immutable evidence is recorded in
+[`docs/source-conflict-evidence.json`](docs/source-conflict-evidence.json); no full backfill was
+dispatched.
+
 Production runs as four isolated six-hour causal segments per day. Authenticated transient
 fragments are assembled deterministically, then a short release-group writer publishes immutable
 content-addressed assets. GitHub Releases are canonical; local source files, Actions artifacts,

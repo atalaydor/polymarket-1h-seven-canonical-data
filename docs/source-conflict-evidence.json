@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_id": "polymarket-1h-seven-v1",
+  "recorded_at": "2026-08-25",
+  "status": "BLOCKED_SOURCE_CONFLICT",
+  "production_dispatched": false,
+  "gate": "A committed PASSED canary receipt requires reconstructable evidence for every asset.",
+  "source_truth": {
+    "assets": ["BTC", "ETH", "SOL", "XRP", "DOGE", "BNB", "HYPE"],
+    "coverage_start": "2026-04-18T20:00:00Z",
+    "release_cutoff": "2026-08-10T01:00:00Z",
+    "market_starts_per_asset": 2717,
+    "utc_dates": 115,
+    "partitions": 805,
+    "pmxt_catalog_objects": 2835,
+    "pmxt_catalog_start": "2026-04-13T19:00:00Z",
+    "pmxt_catalog_end": "2026-08-10T00:00:00Z",
+    "pmxt_absent_empty_hours": [
+      "2026-06-11T04:00:00Z",
+      "2026-06-11T05:00:00Z",
+      "2026-06-11T06:00:00Z"
+    ],
+    "causal_warmup_hours": 1
+  },
+  "remote_validation": {
+    "tests": 125,
+    "tests_status": "PASSED",
+    "ruff": "PASSED",
+    "strict_mypy_source_files": 29,
+    "strict_mypy": "PASSED",
+    "git_diff_check": "PASSED"
+  },
+  "canaries": [
+    {
+      "run_id": 32764178798,
+      "url": "https://github.com/atalaydor/polymarket-1h-seven-canonical-data/actions/runs/32764178798",
+      "commit": "ac59603feddd6655f0627e7acc4c305980f6fa81",
+      "elapsed_seconds": 3271,
+      "candidate_hours_per_asset": 24,
+      "candidate_dates": ["2026-08-05", "2026-08-03", "2026-08-01", "2026-07-30"],
+      "source_bytes": 14885325685,
+      "proved_reconstructable_assets": ["BTC", "HYPE"],
+      "unproved_assets": ["ETH", "SOL", "XRP", "DOGE", "BNB"],
+      "path_proved": ["source", "compute", "stage", "assemble", "publish", "redownload", "reconcile_noop"]
+    },
+    {
+      "run_id": 32769672106,
+      "url": "https://github.com/atalaydor/polymarket-1h-seven-canonical-data/actions/runs/32769672106",
+      "commit": "da6b9e7e46bb8709438ef69d5f9610ed0ad75c8b",
+      "elapsed_seconds": 2211,
+      "candidate_hours_per_asset": 24,
+      "candidate_dates": ["2026-07-15", "2026-06-15", "2026-05-15", "2026-04-25"],
+      "source_bytes": 10976528471,
+      "proved_reconstructable_assets": ["BTC", "ETH"],
+      "unproved_assets": ["SOL", "XRP", "DOGE", "BNB", "HYPE"],
+      "path_proved": ["source", "compute", "stage", "assemble", "publish", "redownload", "reconcile_noop"]
+    }
+  ],
+  "combined_result": {
+    "unique_candidate_hours_per_blocked_asset": 48,
+    "source_bytes": 25861854156,
+    "proved_reconstructable_assets": ["BTC", "ETH", "HYPE"],
+    "blocked_assets": ["SOL", "XRP", "DOGE", "BNB"],
+    "observed_fail_closed_outcomes": ["EVENT_CONFLICT", "SOURCE_GAP"],
+    "reason": "No sampled official market for any blocked asset survived deterministic PMXT reconstruction; populated windows contradicted PMXT claimed top-of-book evidence and two distributed dates had zero matching PMXT events."
+  },
+  "resource_measurements": {
+    "segment_hours": 6,
+    "source_objects_per_segment": 7,
+    "maximum_segment_source_bytes": 4239963305,
+    "peak_rss_kib": 5739800,
+    "minimum_free_disk_bytes": 91669065728,
+    "maximum_parallel_compute_jobs_planned": 16,
+    "production_parallelism_used": 0
+  },
+  "resolution_contract": "Do not dispatch production unless a fresh authoritative free source makes all seven assets reconstructable and the unchanged fail-closed canary commits a PASSED receipt."
+}
