@@ -1,0 +1,21 @@
+name: PMXT bounded source forensic
+
+on:
+  workflow_dispatch:
+    inputs:
+      market_start:
+        description: One UTC-aligned seven-asset market start
+        required: true
+        default: 2026-08-05T18:00:00Z
+
+permissions: {}
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python -m pip install --disable-pip-version-check --no-cache-dir .
+      - name: Trace Gamma identities into bounded raw PMXT rows
+        run: python -m scripts.diagnose_pmxt_source --market-start "${{ inputs.market_start }}"
